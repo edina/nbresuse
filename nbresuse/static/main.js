@@ -12,11 +12,19 @@ define([
             ).append(
                 $('<span>').attr('id', 'nbresuse-mem')
                            .attr('title', 'Actively used Memory (updates every 5s)')
+            ).append(
+                $('<strong>').text(' Disk: ')
+            ).append(
+                $('<span>').attr('id', 'nbresuse-disk')
+                           .attr('title', 'Disk usage (updates every 5s)')
             )
         );
         // FIXME: Do something cleaner to get styles in here?
         $('head').append(
             $('<style>').html('.nbresuse-warn { background-color: #FFD2D2; color: #D8000C; }')
+        );
+        $('head').append(
+            $('<style>').html('.nbresuse-info { background-color: #FFF3CD; color: #856404; }')
         );
         $('head').append(
             $('<style>').html('#nbresuse-display { padding: 2px 8px; }')
@@ -68,6 +76,29 @@ define([
 
                 var display = totalMemoryUsage + "/" + maxMemoryUsage;
                 $('#nbresuse-mem').text(display);
+
+                let totalDiskUsage = metric("total_disk_usage", data);
+                let maxDiskUsage = metric("max_disk_usage", data);
+                var percentage = parseFloat(totalDiskUsage[2]) / parseFloat(maxDiskUsage[2])
+
+                console.log("Percentage", percentage)
+
+                totalDiskUsage = humanFileSize(parseFloat(totalDiskUsage[2]));
+                maxDiskUsage = humanFileSize(parseFloat(maxDiskUsage[2]));
+                var display = totalDiskUsage + "/" + maxDiskUsage;
+
+                if (percentage >= 0.9) {
+                    $('#nbresuse-disk').classList.add('nbresuse-warn')
+                    $('#nbresuse-disk').classList.remove('nbresuse-info')
+                } else if (percentage >= 0.7) {
+                    $('#nbresuse-disk').addClass('nbresuse-info')
+                    $('#nbresuse-disk').classList.remove('nbresuse-warn')
+                } else {
+                    $('#nbresuse-disk').classList.remove('nbresuse-warn', 'nbresuse-info')
+                }
+
+                $('#nbresuse-disk').text(display);
+
             }
         });
     };

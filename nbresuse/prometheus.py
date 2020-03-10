@@ -2,7 +2,7 @@ from notebook.notebookapp import NotebookApp
 from prometheus_client import Gauge
 from tornado import gen
 
-from nbresuse.metrics import CPUMetrics, MemoryMetrics, cpu_metrics, memory_metrics
+from nbresuse.metrics import CPUMetrics, MemoryMetrics, DiskMetrics, cpu_metrics, memory_metrics, disk_metrics
 
 try:
     # Traitlets >= 4.3.3
@@ -34,6 +34,17 @@ MAX_CPU_USAGE = Gauge(
     []
 )
 
+TOTAL_DISK_USAGE = Gauge(
+    'total_disk_usage',
+    'counter for total disk usage',
+    []
+)
+
+MAX_DISK_USAGE = Gauge(
+    'max_disk_usage',
+    'counter for max disk usage',
+    []
+)
 
 class PrometheusHandler(Callable):
     def __init__(self, nbapp: NotebookApp):
@@ -50,6 +61,11 @@ class PrometheusHandler(Callable):
             metrics = self.apply_cpu_limits(cpu_metrics())
             TOTAL_CPU_USAGE.set(metrics.cpu_usage)
             MAX_CPU_USAGE.set(metrics.cpu_max)
+        if self.config.track_disk_usage:
+            metrics = self.apply_disk_limits(disk_metrics())
+            TOTAL_DISK_USAGE.set(metrics.disk_usage)
+            MAX_DISK_USAGE.set(metrics.disk_max)
+
 
     def apply_memory_limits(self, metrics: MemoryMetrics) -> MemoryMetrics:
         if callable(self.config.mem_limit):
@@ -61,4 +77,12 @@ class PrometheusHandler(Callable):
     def apply_cpu_limits(self, metrics: CPUMetrics) -> CPUMetrics:
         if self.config.cpu_limit > 0:
             metrics.cpu_max = self.config.cpu_limit
+        return metrics
+
+    def apply_disk_limits(self, metrics: DiskMetrics) -> DiskMetrics:
+        if self.config.disk_limit > 0:
+            metrics = DiskMetrics(
+                metrics.disk_usage,
+                self.config.disk_limit * 1024 * 1024
+            )
         return metrics

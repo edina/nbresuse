@@ -1,6 +1,7 @@
 from typing import NamedTuple
 
 import psutil
+from pathlib import Path
 
 
 class MemoryMetrics(NamedTuple):
@@ -12,6 +13,10 @@ class CPUMetrics(NamedTuple):
     cpu_max: float
     cpu_usage: float
 
+
+class DiskMetrics(NamedTuple):
+    disk_usage: float
+    disk_max: float
 
 def memory_metrics() -> MemoryMetrics:
     cur_process = psutil.Process()
@@ -44,4 +49,13 @@ def cpu_metrics() -> CPUMetrics:
     return CPUMetrics(
         cpu_count * 100.0,
         cpu_percent
+    )
+
+def disk_metrics() -> DiskMetrics:
+    root_directory = Path('.')
+    disk_usage = sum(f.stat().st_size for f in root_directory.glob('**/*') if f.is_file() )
+    disk_max = 100
+    return DiskMetrics(
+        disk_usage,
+        disk_max
     )

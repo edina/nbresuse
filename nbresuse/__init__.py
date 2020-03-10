@@ -105,6 +105,29 @@ class ResourceUseDisplay(Configurable):
     def _cpu_limit_default(self):
         return float(os.environ.get('CPU_LIMIT', 0))
 
+    track_disk_usage = Bool(
+        default_value=False,
+        help="""
+        Set to True in order to enable reporting of disk usage statistics.
+        """
+    ).tag(config=True)
+
+    @default('disk_limit')
+    def _disk_limit_default(self):
+        return float(os.environ.get('DISK_LIMIT', 0))
+
+    disk_limit = Float(
+        default_value=0,
+        help="""
+        Disk usage limit to display to the user.
+
+        Note that this does not actually limit the user's disk usage!
+
+        Defaults to reading from the `DISK_LIMIT` environment variable. If
+        set to 0, the total disk space available is displayed.
+        """
+    ).tag(config=True)
+
 
 def load_jupyter_server_extension(nbapp):
     """
