@@ -8,26 +8,74 @@ define([
                       .addClass('btn-group')
                       .addClass('pull-right')
             .append(
-                $('<strong>').text('Memory: ')
+                $('<span>').text('Memory')
+                            .attr('id', 'nbresuse-memory')
+                            .attr('class', 'nbresuse-memory')
             ).append(
-                $('<span>').attr('id', 'nbresuse-mem')
-                           .attr('title', 'Actively used Memory (updates every 5s)')
+                $('<span>').text('CPU')
+                            .attr('id', 'nbresuse-cpu')
+                            .attr('class', 'nbresuse-cpu')
             ).append(
-                $('<strong>').text(' Disk: ')
-            ).append(
-                $('<span>').attr('id', 'nbresuse-disk')
-                           .attr('title', 'Disk usage (updates every 5s)')
+                $('<span>').text('Disk')
+                            .attr('id', 'nbresuse-disk')
+                            .attr('class', 'nbresuse-disk')
             )
         );
         // FIXME: Do something cleaner to get styles in here?
+        // back-ticks for a multi-line string
+        // colo(u)rs - green: #84e184; orange: #ff944d; red: #ff3333
         $('head').append(
-            $('<style>').html('.nbresuse-warn { background-color: #FFD2D2; color: #D8000C; }')
-        );
-        $('head').append(
-            $('<style>').html('.nbresuse-info { background-color: #FFF3CD; color: #856404; }')
-        );
-        $('head').append(
-            $('<style>').html('#nbresuse-display { padding: 2px 8px; }')
+            $('<style>').html(`
+            #nbresuse-display { padding: 2px 8px; }
+            .nbresuse-memory {
+                padding: 0 1em;
+                margin: 0 0.5em;
+                border:1px solid #ccc;
+                border-radius:2px;
+                position:relative;
+            }
+            .nbresuse-memory:after {
+                content: ' ';
+                position:absolute;
+                background:#84e184; 
+                top:0; bottom:0;
+                left:0; 
+                width:30%;
+                opacity: 0.5;
+            }
+            .nbresuse-cpu {
+                padding: 0 1em;
+                margin: 0 0.5em;
+                border:1px solid #ccc;
+                border-radius:2px;
+                position:relative;
+            }
+            .nbresuse-cpu:after {
+                content: ' ';
+                position:absolute;
+                background:#84e184; 
+                top:0; bottom:0;
+                left:0; 
+                width:30%;
+                opacity: 0.5;
+            }
+            .nbresuse-disk {
+                padding: 0 1em;
+                margin: 0 0.5em;
+                border:1px solid #ccc;
+                border-radius:2px;
+                position:relative;
+            }
+            .nbresuse-disk:after {
+                content: ' ';
+                position:absolute;
+                background:#84e184; 
+                top:0; bottom:0;
+                left:0; 
+                width:30%;
+                opacity: 0.5;
+            }            
+            `)
         );
     }
 
@@ -58,6 +106,27 @@ define([
             return matches;
     }
 
+    function manage_metric(component, data) {
+
+        let totalUsage = metric("total_" + component + "_usage", data);
+        let maxUsage = metric("max_" + component + "_usage", data);
+        let percentage = parseFloat(totalUsage[2]) / parseFloat(maxUsage[2]);
+        percentage = percentage.toFixed(2) + '%';
+        if (totalUsage && maxUsage) {
+            if (component === 'cpu' ) {
+                totalUsage = parseFloat(totalUsage[2]);
+                maxUsage = parseFloat(maxUsage[2]);
+            } else {
+                totalUsage = humanFileSize(parseFloat(totalUsage[2]));
+                maxUsage = humanFileSize(parseFloat(maxUsage[2]));
+            }
+            let title = totalUsage + "/" + maxUsage + " - " + percentage;
+            $('#nbresuse-' + component).attr('title', title);
+            $('#nbresuse-' + component).text(title);
+            $('.nbresuse-' + component + ':after').attr('width', percentage);
+        }
+
+    }
     var displayMetrics = function() {
         if (document.hidden) {
             // Don't poll when nobody is looking
@@ -66,39 +135,9 @@ define([
         $.ajax({
             url: utils.get_body_data('baseUrl') + 'metrics',
             success: function(data) {
-                let totalMemoryUsage = metric("total_memory_usage", data);
-                let maxMemoryUsage = metric("max_memory_usage", data);
-
-                if (!totalMemoryUsage || !maxMemoryUsage)
-                    return;
-                totalMemoryUsage = humanFileSize(parseFloat(totalMemoryUsage[2]));
-                maxMemoryUsage = humanFileSize(parseFloat(maxMemoryUsage[2]));
-
-                var display = totalMemoryUsage + "/" + maxMemoryUsage;
-                $('#nbresuse-mem').text(display);
-
-                let totalDiskUsage = metric("total_disk_usage", data);
-                let maxDiskUsage = metric("max_disk_usage", data);
-                var percentage = parseFloat(totalDiskUsage[2]) / parseFloat(maxDiskUsage[2])
-
-                console.log("Percentage", percentage)
-
-                totalDiskUsage = humanFileSize(parseFloat(totalDiskUsage[2]));
-                maxDiskUsage = humanFileSize(parseFloat(maxDiskUsage[2]));
-                var display = totalDiskUsage + "/" + maxDiskUsage;
-
-                if (percentage >= 0.9) {
-                    $('#nbresuse-disk').classList.add('nbresuse-warn')
-                    $('#nbresuse-disk').classList.remove('nbresuse-info')
-                } else if (percentage >= 0.7) {
-                    $('#nbresuse-disk').addClass('nbresuse-info')
-                    $('#nbresuse-disk').classList.remove('nbresuse-warn')
-                } else {
-                    $('#nbresuse-disk').classList.remove('nbresuse-warn', 'nbresuse-info')
-                }
-
-                $('#nbresuse-disk').text(display);
-
+                manage_metric('memory', data);
+                manage_metric('cpu', data);
+                manage_metric('disk', data);
             }
         });
     };
