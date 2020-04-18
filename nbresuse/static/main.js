@@ -8,17 +8,29 @@ define([
                       .addClass('btn-group')
                       .addClass('pull-right')
             .append(
-                $('<span>').text('Memory')
+                $('<div>').text('Memory')
                             .attr('id', 'nbresuse-memory')
                             .attr('class', 'nbresuse-memory')
+                            .append(
+                                $('<span>').text(' ')
+                                .attr('class', 'nbresuse-memory_bar')
+                            )
             ).append(
-                $('<span>').text('CPU')
+                $('<div>').text('CPU')
                             .attr('id', 'nbresuse-cpu')
                             .attr('class', 'nbresuse-cpu')
+                            .append(
+                                $('<span>').text(' ')
+                                .attr('class', 'nbresuse-cpu_bar')
+                            )
             ).append(
-                $('<span>').text('Disk')
+                $('<div>').text('Disk')
                             .attr('id', 'nbresuse-disk')
                             .attr('class', 'nbresuse-disk')
+                            .append(
+                                $('<span>').text(' ')
+                                .attr('class', 'nbresuse-disk_bar')
+                            )
             )
         );
         // FIXME: Do something cleaner to get styles in here?
@@ -28,53 +40,58 @@ define([
             $('<style>').html(`
             #nbresuse-display { padding: 2px 8px; }
             .nbresuse-memory {
-                padding: 0 1em;
+                display: inline-block;
+                padding: 2px 1em;
                 margin: 0 0.5em;
                 border:1px solid #ccc;
                 border-radius:2px;
                 position:relative;
             }
-            .nbresuse-memory:after {
-                content: ' ';
-                position:absolute;
-                background:#84e184; 
-                top:0; bottom:0;
-                left:0; 
-                width:30%;
-                opacity: 0.5;
-            }
+
             .nbresuse-cpu {
-                padding: 0 1em;
-                margin: 0 0.5em;
+                display: inline-block;
+                padding: 2px 1em;
+                margin: 5px 0.5em;
                 border:1px solid #ccc;
                 border-radius:2px;
                 position:relative;
             }
-            .nbresuse-cpu:after {
-                content: ' ';
-                position:absolute;
-                background:#84e184; 
-                top:0; bottom:0;
-                left:0; 
-                width:30%;
-                opacity: 0.5;
-            }
+
             .nbresuse-disk {
-                padding: 0 1em;
+                display: inline-block;
+                padding: 2px 1em;
                 margin: 0 0.5em;
                 border:1px solid #ccc;
                 border-radius:2px;
                 position:relative;
             }
-            .nbresuse-disk:after {
-                content: ' ';
-                position:absolute;
-                background:#84e184; 
-                top:0; bottom:0;
-                left:0; 
-                width:30%;
-                opacity: 0.5;
-            }            
+            .nbresuse-memory_bar {
+                    z-index: -1;
+                    position:absolute;
+                    background:#84e184; 
+                    top:0; bottom:0;
+                    left:0; 
+                    width:30%;
+                    opacity: 0.5;
+                }
+                .nbresuse-cpu_bar {
+                    z-index: -1;
+                    position:absolute;
+                    background:#84e184; 
+                    top:0; bottom:0;
+                    left:0; 
+                    width:30%;
+                    opacity: 0.5;
+                }
+                .nbresuse-disk_bar {
+                    z-index: -1;
+                    position:absolute;
+                    background:#84e184; 
+                    top:0; bottom:0;
+                    left:0; 
+                    width:30%;
+                    opacity: 0.5;
+                }            
             `)
         );
     }
@@ -110,20 +127,25 @@ define([
 
         let totalUsage = metric("total_" + component + "_usage", data);
         let maxUsage = metric("max_" + component + "_usage", data);
-        let percentage = parseFloat(totalUsage[2]) / parseFloat(maxUsage[2]);
+        let percentage = (parseFloat(totalUsage[2]) / parseFloat(maxUsage[2])) * 100;
+        percentage = percentage > 100 ? 100 : percentage;  // cap at 100 percent
+        // green: #84e184; orange: #ff944d; red: #ff3333
+        colour = percentage > 90 ? '#ff3333' : 
+            percentage > 75 ? '#ff944d' : '#84e184';
         percentage = percentage.toFixed(2) + '%';
         if (totalUsage && maxUsage) {
             if (component === 'cpu' ) {
                 totalUsage = parseFloat(totalUsage[2]);
-                maxUsage = parseFloat(maxUsage[2]);
+                maxUsage = parseFloat(maxUsage[2]) / 100;
             } else {
                 totalUsage = humanFileSize(parseFloat(totalUsage[2]));
                 maxUsage = humanFileSize(parseFloat(maxUsage[2]));
             }
-            let title = totalUsage + "/" + maxUsage + " - " + percentage;
+            let title = totalUsage + "/" + maxUsage + " => " + percentage;
             $('#nbresuse-' + component).attr('title', title);
-            $('#nbresuse-' + component).text(title);
-            $('.nbresuse-' + component + ':after').attr('width', percentage);
+            $('#nbresuse-' + component).css('border-color', colour);
+            $('.nbresuse-' + component + '_bar').css('width', percentage);
+            $('.nbresuse-' + component + '_bar').css('background', colour);
         }
 
     }
