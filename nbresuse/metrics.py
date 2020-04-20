@@ -27,7 +27,7 @@ def memory_metrics() -> MemoryMetrics:
 
     return MemoryMetrics(
         rss,
-        300 * 1024 * 1024 #virtual_memory.total
+        virtual_memory.total
     )
 
 
@@ -57,5 +57,5 @@ def disk_metrics() -> DiskMetrics:
     disk_max = 570 * 1024 * 1024
     return DiskMetrics(
         disk_usage,
-        500 * 1024 * 1024 # disk_psutils.total
+        disk_psutils.total
     )
