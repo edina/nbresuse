@@ -27,7 +27,7 @@ def memory_metrics() -> MemoryMetrics:
 
     return MemoryMetrics(
         rss,
-        virtual_memory.total
+        300 * 1024 * 1024 #virtual_memory.total
     )
 
 
@@ -53,8 +53,9 @@ def cpu_metrics() -> CPUMetrics:
 def disk_metrics() -> DiskMetrics:
     root_directory = Path('.')
     disk_usage = sum(f.stat().st_size for f in root_directory.glob('**/*') if f.is_file() )
+    disk_psutils = psutil.disk_usage('/home')
     disk_max = 570 * 1024 * 1024
     return DiskMetrics(
         disk_usage,
-        disk_max
+        500 * 1024 * 1024 # disk_psutils.total
     )

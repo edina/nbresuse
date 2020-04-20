@@ -9,89 +9,70 @@ define([
                       .addClass('pull-right')
             .append(
                 $('<div>').text('Memory')
-                            .attr('id', 'nbresuse-memory')
-                            .attr('class', 'nbresuse-memory')
-                            .append(
-                                $('<span>').text(' ')
-                                .attr('class', 'nbresuse-memory_bar')
-                            )
+                          .attr('id', 'nbresuse-memory')
+                          .attr('class', 'nbresue_common nbresuse-memory')
+                          .append(
+                              $('<span>').text(' ')
+                              .attr('class', 'nbresuse-common_bar nbresuse-memory_bar')
+                          )
             ).append(
                 $('<div>').text('CPU')
-                            .attr('id', 'nbresuse-cpu')
-                            .attr('class', 'nbresuse-cpu')
-                            .append(
-                                $('<span>').text(' ')
-                                .attr('class', 'nbresuse-cpu_bar')
-                            )
+                          .attr('id', 'nbresuse-cpu')
+                          .attr('class', 'nbresue_common nbresuse-cpu')
+                          .append(
+                              $('<span>').text(' ')
+                              .attr('class', 'nbresuse-common_bar nbresuse-cpu_bar')
+                          )
             ).append(
                 $('<div>').text('Disk')
-                            .attr('id', 'nbresuse-disk')
-                            .attr('class', 'nbresuse-disk')
-                            .append(
-                                $('<span>').text(' ')
-                                .attr('class', 'nbresuse-disk_bar')
-                            )
+                          .attr('id', 'nbresuse-disk')
+                          .attr('class', 'nbresue_common nbresuse-disk')
+                          .append(
+                              $('<span>').text(' ')
+                              .attr('class', 'nbresuse-common_bar nbresuse-disk_bar')
+                          )
             )
         );
         // FIXME: Do something cleaner to get styles in here?
         // back-ticks for a multi-line string
-        // colo(u)rs - green: #84e184; orange: #ff944d; red: #ff3333
         $('head').append(
             $('<style>').html(`
-            #nbresuse-display { padding: 2px 8px; }
-            .nbresuse-memory {
-                display: inline-block;
-                padding: 2px 1em;
-                margin: 0 0.5em;
-                border:1px solid #ccc;
-                border-radius:2px;
-                position:relative;
-            }
-
-            .nbresuse-cpu {
-                display: inline-block;
-                padding: 2px 1em;
-                margin: 5px 0.5em;
-                border:1px solid #ccc;
-                border-radius:2px;
-                position:relative;
-            }
-
-            .nbresuse-disk {
-                display: inline-block;
-                padding: 2px 1em;
-                margin: 0 0.5em;
-                border:1px solid #ccc;
-                border-radius:2px;
-                position:relative;
-            }
-            .nbresuse-memory_bar {
-                    z-index: -1;
-                    position:absolute;
-                    background:#84e184; 
-                    top:0; bottom:0;
-                    left:0; 
-                    width:30%;
-                    opacity: 0.5;
-                }
-                .nbresuse-cpu_bar {
-                    z-index: -1;
-                    position:absolute;
-                    background:#84e184; 
-                    top:0; bottom:0;
-                    left:0; 
-                    width:30%;
-                    opacity: 0.5;
-                }
-                .nbresuse-disk_bar {
-                    z-index: -1;
-                    position:absolute;
-                    background:#84e184; 
-                    top:0; bottom:0;
-                    left:0; 
-                    width:30%;
-                    opacity: 0.5;
-                }            
+    #nbresuse-display { padding: 2px 8px; }
+    .nbresue_common {
+        display: inline-block;
+        padding: 2px 1em;
+        margin: 0 0.5em;
+        border-radius:2px;
+        position:relative;
+    }
+    .nbresuse-memory {
+        border:1px solid #ccc;
+    }
+    .nbresuse-cpu {
+        border:1px solid #ccc;
+    }
+    .nbresuse-disk {
+        border:1px solid #ccc;
+    }
+    .nbresuse-common_bar {
+        z-index: -1;
+        opacity: 0.5;
+        position:absolute;
+        top:0; bottom:0;
+        left:0;
+    }
+    .nbresuse-memory_bar {
+        background:#84e184;
+        width:30%;
+    }
+    .nbresuse-cpu_bar {
+        background:#84e184;
+        width:30%;
+    }
+    .nbresuse-disk_bar {
+        background:#84e184;
+        width:30%;
+    }
             `)
         );
     }
@@ -128,6 +109,7 @@ define([
         let totalUsage = metric("total_" + component + "_usage", data);
         let maxUsage = metric("max_" + component + "_usage", data);
         let percentage = (parseFloat(totalUsage[2]) / parseFloat(maxUsage[2])) * 100;
+
         // green: #84e184; orange: #ff944d; red: #ff3333; emergency (maroon): '#800000'
         colour = percentage > 100 ? '#800000' :
             percentage > 90 ? '#ff3333' :
