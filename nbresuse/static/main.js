@@ -128,10 +128,11 @@ define([
         let totalUsage = metric("total_" + component + "_usage", data);
         let maxUsage = metric("max_" + component + "_usage", data);
         let percentage = (parseFloat(totalUsage[2]) / parseFloat(maxUsage[2])) * 100;
-        percentage = percentage > 100 ? 100 : percentage;  // cap at 100 percent
-        // green: #84e184; orange: #ff944d; red: #ff3333
-        colour = percentage > 90 ? '#ff3333' : 
+        // green: #84e184; orange: #ff944d; red: #ff3333; emergency (maroon): '#800000'
+        colour = percentage > 100 ? '#800000' :
+            percentage > 90 ? '#ff3333' :
             percentage > 75 ? '#ff944d' : '#84e184';
+        percentage = percentage > 100 ? 100 : percentage;  // cap at 100 percent
         percentage = percentage.toFixed(2) + '%';
         if (totalUsage && maxUsage) {
             if (component === 'cpu' ) {
