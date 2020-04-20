@@ -45,7 +45,6 @@ def cpu_metrics() -> CPUMetrics:
         except BaseException:
             return 0
     cpu_percent = sum([get_cpu_percent(p) for p in all_processes])
-
     return CPUMetrics(
         cpu_count * 100.0,
         cpu_percent
@@ -54,8 +53,9 @@ def cpu_metrics() -> CPUMetrics:
 def disk_metrics() -> DiskMetrics:
     root_directory = Path('.')
     disk_usage = sum(f.stat().st_size for f in root_directory.glob('**/*') if f.is_file() )
-    disk_max = 100
+    disk_psutils = psutil.disk_usage('/home')
+    disk_max = 570 * 1024 * 1024
     return DiskMetrics(
         disk_usage,
-        disk_max
+        disk_psutils.total
     )
