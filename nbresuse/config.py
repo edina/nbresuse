@@ -56,6 +56,13 @@ class ResourceUseDisplay(Configurable):
         trait=PSUtilMetric(), default_value=[{"name": "cpu_count"}]
     )
 
+    track_mem_percent = Bool(
+        default_value=False,
+        help="""
+        Set to True in order to enable reporting of Memory usage statistics.
+        """,
+    ).tag(config=True)
+
     mem_warning_threshold = Float(
         default_value=0.1,
         help="""

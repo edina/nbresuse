@@ -2,24 +2,68 @@ define([
     'jquery',
     'base/js/utils'
 ], function ($, utils) {
+
+    var metric_keys = {
+        'memory': 'Memory',
+        'cpu': 'CPU',
+        'disk': 'Disk',
+    };
+
     function setupDOM() {
         $('#maintoolbar-container').append(
             $('<div>').attr('id', 'nbresuse-display')
                       .addClass('btn-group')
                       .addClass('pull-right')
             .append(
-                $('<strong>').text('Memory: ')
+                $('<div>').attr('id', 'nbresuse-memory')
             ).append(
-                $('<span>').attr('id', 'nbresuse-mem')
-                           .attr('title', 'Actively used Memory (updates every 5s)')
+                $('<div>').attr('id', 'nbresuse-cpu')
+            ).append(
+                $('<div>').attr('id', 'nbresuse-disk')
             )
         );
         // FIXME: Do something cleaner to get styles in here?
+        // back-ticks for a multi-line string
         $('head').append(
-            $('<style>').html('.nbresuse-warn { background-color: #FFD2D2; color: #D8000C; }')
-        );
-        $('head').append(
-            $('<style>').html('#nbresuse-display { padding: 2px 8px; }')
+            $('<style>').html(`
+    #nbresuse-display { padding: 2px 8px; }
+
+    .nbresue_common {
+        display: hidden;
+        padding: 2px 1em;
+        margin: 0 0.5em;
+        border-radius:2px;
+        position:relative;
+    }
+    .nbresuse-memory {
+        border:1px solid #ccc;
+    }
+    .nbresuse-cpu {
+        border:1px solid #ccc;
+    }
+    .nbresuse-disk {
+        border:1px solid #ccc;
+    }
+    .nbresuse-common_bar {
+        z-index: -1;
+        opacity: 0.5;
+        position:absolute;
+        top:0; bottom:0;
+        left:0;
+    }
+    .nbresuse-memory_bar {
+        background:#84e184;
+        width:30%;
+    }
+    .nbresuse-cpu_bar {
+        background:#84e184;
+        width:30%;
+    }
+    .nbresuse-disk_bar {
+        background:#84e184;
+        width:30%;
+    }
+            `)
         );
     }
 
@@ -50,6 +94,49 @@ define([
             return matches;
     }
 
+    var displayMetric = function( component, data) {
+        let totalUsage = metric("total_" + component + "_usage", data);
+        let maxUsage = metric("max_" + component + "_usage", data);
+        console.log( 'totalUsage:' + totalUsage + '  maxUsage: ' + maxUsage)
+        if (maxUsage[2] <= 0)
+            return;
+
+        // green: #84e184; orange: #ff944d; red: #ff3333; emergency (maroon): '#800000'
+        let percentage = (parseFloat(totalUsage[2]) / parseFloat(maxUsage[2])) * 100;
+        colour = percentage > 100 ? '#800000' :
+            percentage > 90 ? '#ff3333' :
+            percentage > 75 ? '#ff944d' : '#84e184';
+        percentage = percentage > 100 ? 100 : percentage;  // cap at 100 percent
+        percentage = percentage.toFixed(2) + '%';
+
+
+        if (component == 'memory' || component == 'disk') {
+            totalUsage = humanFileSize(parseFloat(totalUsage[2]));
+            maxUsage = humanFileSize(parseFloat(maxUsage[2]));
+        } else {
+            totalUsage = parseFloat(totalUsage[2]);
+            maxUsage = parseFloat(maxUsage[2]);
+        };
+
+        var display = totalUsage + "/" + maxUsage;
+
+        $('#nbresuse-' + component)
+            .text( metric_keys[component])
+            .css('display', 'inline-block')
+            .attr('class', 'nbresue_common nbresuse-' + component)
+            .attr('title', display)
+            .css('border-color', colour)
+            .append(
+                $('<span>').text(' ')
+                .attr('class', 'nbresuse-common_bar nbresuse-' + component + '_bar')
+            )
+//            display: inline-block;
+
+        $('.nbresuse-' + component + '_bar')
+            .css('width', percentage)
+            .css('background', colour);
+    }
+
     var displayMetrics = function() {
         if (document.hidden) {
             // Don't poll when nobody is looking
@@ -58,16 +145,8 @@ define([
         $.ajax({
             url: utils.get_body_data('baseUrl') + 'metrics',
             success: function(data) {
-                let totalMemoryUsage = metric("total_memory_usage", data);
-                let maxMemoryUsage = metric("max_memory_usage", data);
-
-                if (maxMemoryUsage[2] <= 0)
-                    return;
-                totalMemoryUsage = humanFileSize(parseFloat(totalMemoryUsage[2]));
-                maxMemoryUsage = humanFileSize(parseFloat(maxMemoryUsage[2]));
-
-                var display = totalMemoryUsage + "/" + maxMemoryUsage;
-                $('#nbresuse-mem').text(display);
+                displayMetric('memory', data)
+                displayMetric('cpu', data)
             }
         });
     };
