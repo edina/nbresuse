@@ -19,7 +19,7 @@ class PrometheusHandler(Callable):
         self.config = metricsloader.config
         self.session_manager = metricsloader.nbapp.session_manager
 
-        gauge_names = ["total_memory", "max_memory", "total_cpu", "max_cpu"]
+        gauge_names = ["total_memory", "max_memory", "total_cpu", "max_cpu", "total_disk", "max_disk"]
         for name in gauge_names:
             phrase = name + "_usage"
             gauge = Gauge(phrase, "counter for " + phrase.replace("_", " "), [])
@@ -35,6 +35,11 @@ class PrometheusHandler(Callable):
             if cpu_metric_values is not None:
                 self.TOTAL_CPU_USAGE.set(cpu_metric_values["cpu_percent"])
                 self.MAX_CPU_USAGE.set(self.apply_cpu_limit(cpu_metric_values))
+        if self.config.track_disk_percent == True:
+            disk_metric_values = self.metricsloader.disk_metrics()
+            if disk_metric_values is not None:
+                self.TOTAL_DISK_USAGE.set(disk_metric_values["disk_usage"])
+                self.MAX_DISK_USAGE.set(self.apply_disk_limit(disk_metric_values))
 
     def apply_memory_limit(self, memory_metric_values) -> Optional[int]:
         if memory_metric_values is None:
@@ -61,3 +66,16 @@ class PrometheusHandler(Callable):
                 return self.config.cpu_limit
             else:
                 return 100.0 * cpu_metric_values["cpu_count"]
+
+    def apply_disk_limit(self, disk_metric_values) -> Optional[float]:
+        if disk_metric_values is None:
+            return None
+        else:
+            if callable(self.config.disk_limit):
+                return self.config.disk_limit(
+                    disk_usage=disk_metric_values["disk_usage"]
+                )
+            elif self.config.disk_limit > 0:  # disk_limit is an Int
+                return self.config.disk_limit
+            else:
+                return disk_metric_values["disk_total"]

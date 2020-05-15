@@ -56,6 +56,15 @@ class ResourceUseDisplay(Configurable):
         trait=PSUtilMetric(), default_value=[{"name": "cpu_count"}]
     )
 
+    process_disk_metrics = List(
+        trait=PSUtilMetric(),
+        default_value=[{"name": "disk_percent"}],
+    )
+
+    system_disk_metrics = List(
+        trait=PSUtilMetric(), default_value=[{"name": "disk_usage"}]
+    )
+
     track_mem_percent = Bool(
         default_value=False,
         help="""
@@ -129,3 +138,40 @@ class ResourceUseDisplay(Configurable):
     @default("cpu_limit")
     def _cpu_limit_default(self):
         return float(os.environ.get("CPU_LIMIT", 0))
+
+    track_disk_percent = Bool(
+        default_value=False,
+        help="""
+        Set to True in order to enable reporting of Disk usage statistics.
+        """,
+    ).tag(config=True)
+
+    disk_warning_threshold = Float(
+        default_value=0.1,
+        help="""
+        Warn user with flashing lights when Disk usage is within this fraction
+        Disk usage limit.
+
+        For example, if Disk limit is 5GB, `disk_warning_threshold` is 0.1,
+        we will start warning the user when they use (5 - (5 * 0.1)) GB.
+
+        Set to 0 to disable warning.
+        """,
+    ).tag(config=True)
+
+    disk_limit = Union(
+        trait_types=[Float(), Callable()],
+        default_value=0,
+        help="""
+        Disk usage limit to display to the user.
+
+        Note that this does not actually limit the user's Disk space!
+
+        Defaults to reading from the `DISK_LIMIT` environment variable. If
+        set to 0, the total partition space available is displayed.
+        """,
+    ).tag(config=True)
+
+    @default("disk_limit")
+    def _disk_limit_default(self):
+        return float(os.environ.get("DISK_LIMIT", 0))

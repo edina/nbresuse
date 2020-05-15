@@ -2,6 +2,7 @@ try:
     import psutil
 except ImportError:
     psutil = None
+from pathlib import Path
 
 from notebook.notebookapp import NotebookApp
 
@@ -67,7 +68,6 @@ class PSUtilMetricsLoader:
 
         if any(value is None for value in metric_values.values()):
             return None
-
         return metric_values
 
     def memory_metrics(self):
@@ -79,3 +79,9 @@ class PSUtilMetricsLoader:
         return self.metrics(
             self.config.process_cpu_metrics, self.config.system_cpu_metrics
         )
+
+    def disk_metrics(self):
+        root_directory = Path('.')
+        disk_usage = sum(f.stat().st_size for f in root_directory.glob('**/*') if f.is_file() )
+        disk_psutils = psutil.disk_usage('/home').total
+        return {'disk_usage': disk_usage, 'disk_total': disk_psutils}

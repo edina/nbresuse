@@ -130,8 +130,6 @@ define([
                 $('<span>').text(' ')
                 .attr('class', 'nbresuse-common_bar nbresuse-' + component + '_bar')
             )
-//            display: inline-block;
-
         $('.nbresuse-' + component + '_bar')
             .css('width', percentage)
             .css('background', colour);
@@ -147,6 +145,7 @@ define([
             success: function(data) {
                 displayMetric('memory', data)
                 displayMetric('cpu', data)
+                displayMetric('disk', data)
             }
         });
     };
