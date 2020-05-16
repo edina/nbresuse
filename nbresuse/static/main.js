@@ -97,7 +97,7 @@ define([
     var displayMetric = function( component, data) {
         let totalUsage = metric("total_" + component + "_usage", data);
         let maxUsage = metric("max_" + component + "_usage", data);
-        console.log( 'totalUsage:' + totalUsage + '  maxUsage: ' + maxUsage)
+        console.log( 'component: ' + component + '  totalUsage:' + totalUsage + '  maxUsage: ' + maxUsage)
         if (maxUsage[2] <= 0)
             return;
 
