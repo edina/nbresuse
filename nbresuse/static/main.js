@@ -145,8 +145,11 @@ define([
             dataType: "text",
             url: utils.get_body_data('baseUrl') + 'metrics',
             success: function(data) {
+                console.log('Memory metric')
                 displayMetric('memory', data)
+                console.log('cpu metric')
                 displayMetric('cpu', data)
+                console.log('disk metric')
                 displayMetric('disk', data)
             }
         });
