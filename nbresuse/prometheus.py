@@ -17,6 +17,7 @@ class PrometheusHandler(Callable):
         super().__init__()
         self.metricsloader = metricsloader
         self.config = metricsloader.config
+        print(f"PrometheusHandler init.config: {self.config}")
         self.session_manager = metricsloader.nbapp.session_manager
 
         gauge_names = ["total_memory", "max_memory", "total_cpu", "max_cpu", "total_disk", "max_disk"]
