@@ -27,6 +27,7 @@ class PSUtilMetricsLoader:
 
     def process_metric(self, name, kwargs={}, attribute=None):
         if psutil is None:
+            print(f"psutil is none")
             return None
         else:
             current_process = psutil.Process()

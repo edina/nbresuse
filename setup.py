@@ -23,7 +23,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3",
     ],
     packages=setuptools.find_packages(),
-    install_requires=["notebook>=5.6.0", "prometheus_client"],
+    install_requires=["notebook>=5.6.0", "prometheus_client", "psutil>=5.6.0"],
     extras_require={
         "resources": ["psutil>=5.6.0"],
         "dev": ["autopep8", "pytest", "flake8", "pytest-cov>=2.6.1", "mock"],
