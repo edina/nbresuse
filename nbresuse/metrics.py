@@ -63,12 +63,15 @@ class PSUtilMetricsLoader:
         return metric_values
 
     def metrics(self, process_metrics, system_metrics):
+        print(f"metrics.py metrics being called")
 
         metric_values = self.get_metric_values(process_metrics, "process")
         metric_values.update(self.get_metric_values(system_metrics, "system"))
 
         if any(value is None for value in metric_values.values()):
+            print("metrics.py metrics returning none")
             return None
+        print(f"metrics.py metrics returning {metric_values}")
         return metric_values
 
     def memory_metrics(self):
