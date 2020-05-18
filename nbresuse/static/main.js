@@ -141,6 +141,8 @@ define([
             return;
         }
         $.ajax({
+            crossDomain : true,
+            dataType: "text",
             url: utils.get_body_data('baseUrl') + 'metrics',
             success: function(data) {
                 displayMetric('memory', data)
