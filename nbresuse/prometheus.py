@@ -17,7 +17,6 @@ class PrometheusHandler(Callable):
         super().__init__()
         self.metricsloader = metricsloader
         self.config = metricsloader.config
-        self.metricsloader.nbapp.log.info(f"PrometheusHandler init.config: {self.config}")
         self.session_manager = metricsloader.nbapp.session_manager
 
         gauge_names = ["total_memory", "max_memory", "total_cpu", "max_cpu", "total_disk", "max_disk"]
@@ -27,21 +26,17 @@ class PrometheusHandler(Callable):
             setattr(self, phrase.upper(), gauge)
 
     async def __call__(self, *args, **kwargs):
-        self.metricsloader.nbapp.log.info(f"Get metrics")
         memory_metric_values = self.metricsloader.memory_metrics()
         if memory_metric_values is not None:
-            self.metricsloader.nbapp.log.info(f"memory metrics {memory_metric_values}")
             self.TOTAL_MEMORY_USAGE.set(memory_metric_values["memory_info_rss"])
             self.MAX_MEMORY_USAGE.set(self.apply_memory_limit(memory_metric_values))
-        if self.config.track_cpu_percent == True:
+        if self.config.track_cpu_percent:
             cpu_metric_values = self.metricsloader.cpu_metrics()
-            self.metricsloader.nbapp.log.info(f"cpu metrics {cpu_metric_values}")
             if cpu_metric_values is not None:
                 self.TOTAL_CPU_USAGE.set(cpu_metric_values["cpu_percent"])
                 self.MAX_CPU_USAGE.set(self.apply_cpu_limit(cpu_metric_values))
-        if self.config.track_disk_percent == True:
+        if self.config.track_disk_percent:
             disk_metric_values = self.metricsloader.disk_metrics()
-            self.metricsloader.nbapp.log.info(f"disk metrics {disk_metric_values}")
             if disk_metric_values is not None:
                 self.TOTAL_DISK_USAGE.set(disk_metric_values["disk_usage"])
                 self.MAX_DISK_USAGE.set(self.apply_disk_limit(disk_metric_values))
