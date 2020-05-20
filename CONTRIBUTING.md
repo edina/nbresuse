@@ -29,7 +29,7 @@ We recommend using [pipenv](https://docs.pipenv.org/) to make development easier
    docker run -p 8888:8888 test
    ```
 
-7. If you want to test and of the functionality that affects the display, you can do so
+4. If you want to test and of the functionality that affects the display, you can do so
    by setting environment variables or setting up a `jupyter_notebook_config.py` file
    (see the supplied `example_jupyter_notebook_config.py`).
 
@@ -37,7 +37,7 @@ We recommend using [pipenv](https://docs.pipenv.org/) to make development easier
    MEM_LIMIT=$(expr 128 \* 1024 \* 1024) jupyter notebook
    ```
 
-8. NBResuse has adopted automatic code formatting so you shouldn't
+5. NBResuse has adopted automatic code formatting so you shouldn't
 need to worry too much about your code style.
 As long as your code is valid,
 the pre-commit hook should take care of how it should look. Here is how to set up pre-commit hooks for automatic code formatting, etc.
