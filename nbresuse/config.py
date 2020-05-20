@@ -38,16 +38,6 @@ class ResourceUseDisplay(Configurable):
     Holds server-side configuration for nbresuse
     """
 
-    process_memory_metrics = List(
-        trait=PSUtilMetric(),
-        default_value=[{"name": "memory_info", "attribute": "rss"}],
-    )
-
-    system_memory_metrics = List(
-        trait=PSUtilMetric(),
-        default_value=[{"name": "virtual_memory", "attribute": "total"}],
-    )
-
     process_cpu_metrics = List(
         trait=PSUtilMetric(),
         default_value=[{"name": "cpu_percent", "kwargs": {"interval": 0.05}}],
@@ -55,15 +45,6 @@ class ResourceUseDisplay(Configurable):
 
     system_cpu_metrics = List(
         trait=PSUtilMetric(), default_value=[{"name": "cpu_count"}]
-    )
-
-    process_disk_metrics = List(
-        trait=PSUtilMetric(),
-        default_value=[{"name": "disk_percent"}],
-    )
-
-    system_disk_metrics = List(
-        trait=PSUtilMetric(), default_value=[{"name": "disk_usage"}]
     )
 
     mem_limit = Union(

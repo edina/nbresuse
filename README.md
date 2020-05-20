@@ -13,14 +13,15 @@
 [![Coverage](https://img.shields.io/azure-devops/coverage/tpaine154/jupyter/17)](https://dev.azure.com/tpaine154/jupyter/_build?definitionId=17&_a=summary)
 
 
-![Screenshot with memory limit](screenshot.png)
+![Screenshot with three limits showing](standard-metrics-screenshot.png)
 
-NB Resource Usage (NBResuse) is a small extension for Jupyter Notebooks that
+Docker NB Resource Usage (DNBResuse) is a fork of NBResuse.
+It is a small extension for Jupyter Notebooks running in a docker notebook, and
 displays an indication of how much resources your current notebook server and
 its children (kernels, terminals, etc) are using. This is displayed in the
 main toolbar in the notebook itself, refreshing every 5s.
 
-This version is specific from notebooks running in docker containers:
+Reminder: This version is specific from notebooks running in docker containers.
 
 Whilst running directly on a host, details can be pulled from pustil (which
 pulls data from the `/proc` tree, however in a docker image the correct place
@@ -31,7 +32,7 @@ to pull this data is from the `/sys/fs/cgroup/`)
 You can currently install this package from PyPI.
 
 ```bash
-pip install nbresuse[resources]
+pip install nbresuse
 ```
 
 The above command will install NBResuse along with `psutil` Python package (which is used for getting hardware usage information from the system). If you would like to install NBResuse _without_ `psutil` (in which case NBResuse does essentially nothing), run `pip install nbresuse` instead.
@@ -97,13 +98,17 @@ Reporting of this can be disabled:
 1. In the command line when starting `jupyter notebook`, as `--ResourceUseDisplay.track_disk_usage=False`.
 2. In your Jupyter notebook config file: `c.NotebookApp.ResourceUseDisplay.track_disk_usage=False`
 
-
-
 ## Resources Displayed
 
-Out the box, only Memory Usage is displayed.
+Out the box, all three metrics are displayed.
 
-Resources are displayed as a named box, with a colour bar to indicate a level of use.
+Items can me removed, see above.
+
+Resources are displayed as a named box, with a bar to indicate a level of use.
+
+The bar is green for normal use, turns orange at 75%, red at 90%, and goes maroon when over 100%
+
+![Screenshot with warning disk shown](metrics-screenshot.png)
 
 The bar is green for normal use, turns orange at 75%, red at 90%, and goes maroon when over 100%
 

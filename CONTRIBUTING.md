@@ -13,7 +13,7 @@ We recommend using [pipenv](https://docs.pipenv.org/) to make development easier
 1. Clone the git repository:
 
    ```bash
-   git clone https://github.com/yuvipanda/nbresuse
+   git clone https://github.com/edina/nbresuse
    ```
 
 2. Create an environment that will hold our dependencies.

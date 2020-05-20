@@ -24,13 +24,11 @@ class PrometheusHandler(Callable):
             phrase = name + "_usage"
             gauge = Gauge(phrase, "counter for " + phrase.replace("_", " "), [])
             setattr(self, phrase.upper(), gauge)
-        self.metricsloader.nbapp.log.info(f"PromethiusHandler config on init: {self.config}")
 
     async def __call__(self, *args, **kwargs):
 
         memory_metric_values = self.metricsloader.memory_metrics()
         if memory_metric_values is not None:
-            self.metricsloader.nbapp.log.info(f"memory metrics (before limits): {memory_metric_values}")
             self.TOTAL_MEMORY_USAGE.set(memory_metric_values["memory_usage"])
             self.MAX_MEMORY_USAGE.set(self.apply_memory_limit(memory_metric_values))
         if self.config.track_cpu_percent:
@@ -41,7 +39,6 @@ class PrometheusHandler(Callable):
         if self.config.track_disk_usage:
             disk_metric_values = self.metricsloader.disk_metrics()
             if disk_metric_values is not None:
-                self.metricsloader.nbapp.log.info(f"disk metrics (before limits): {disk_metric_values}")
                 self.TOTAL_DISK_USAGE.set(disk_metric_values["disk_usage"])
                 self.MAX_DISK_USAGE.set(self.apply_disk_limit(disk_metric_values))
 
@@ -76,16 +73,11 @@ class PrometheusHandler(Callable):
             return None
         else:
             if callable(self.config.disk_limit):
-                foo = self.config.disk_limit(
-                    disk_usage=disk_metric_values["disk_usage"]
-                )
-                self.metricsloader.nbapp.log.info(f"calling disk_limit returns: {foo}")
+
                 return self.config.disk_limit(
                     disk_usage=disk_metric_values["disk_usage"]
                 )
             elif self.config.disk_limit > 0:  # disk_limit is an Int
-                self.metricsloader.nbapp.log.info(f"disk_limit defined, returning: {self.config.disk_limit}")
                 return self.config.disk_limit
             else:
-                self.metricsloader.nbapp.log.info(f"disk_limit undefined, returning: {disk_metric_values['disk_total']}")
                 return disk_metric_values["disk_total"]
