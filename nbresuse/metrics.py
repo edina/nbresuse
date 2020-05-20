@@ -74,15 +74,18 @@ class PSUtilMetricsLoader:
 
     def memory_metrics(self):
         data = {}
-        with open('/sys/fs/cgroup/memory/memory.stat') as meminfo:
+        with open("/sys/fs/cgroup/memory/memory.stat") as meminfo:
             for line in meminfo:
                 if line:
                     key, value = line.split()
                     data[key] = int(value)
         sys_ram = int(psutil.virtual_memory().total)
-        if sys_ram < data['hierarchical_memory_limit']:
-            data['hierarchical_memory_limit'] = sys_ram
-        return {'memory_usage': data['rss'], 'memory_total': data['hierarchical_memory_limit']}
+        if sys_ram < data["hierarchical_memory_limit"]:
+            data["hierarchical_memory_limit"] = sys_ram
+        return {
+            "memory_usage": data["rss"],
+            "memory_total": data["hierarchical_memory_limit"],
+        }
 
     def cpu_metrics(self):
         return self.metrics(
@@ -91,6 +94,8 @@ class PSUtilMetricsLoader:
 
     def disk_metrics(self):
         root_directory = Path(self.config.disk_dir)
-        disk_usage = sum(f.stat().st_size for f in root_directory.glob('**/*') if f.is_file() )
+        disk_usage = sum(
+            f.stat().st_size for f in root_directory.glob("**/*") if f.is_file()
+        )
         disk_psutils = psutil.disk_usage(self.config.disk_dir).total
-        return {'disk_usage': disk_usage, 'disk_total': disk_psutils}
+        return {"disk_usage": disk_usage, "disk_total": disk_psutils}

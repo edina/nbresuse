@@ -19,7 +19,14 @@ class PrometheusHandler(Callable):
         self.config = metricsloader.config
         self.session_manager = metricsloader.nbapp.session_manager
 
-        gauge_names = ["total_memory", "max_memory", "total_cpu", "max_cpu", "total_disk", "max_disk"]
+        gauge_names = [
+            "total_memory",
+            "max_memory",
+            "total_cpu",
+            "max_cpu",
+            "total_disk",
+            "max_disk",
+        ]
         for name in gauge_names:
             phrase = name + "_usage"
             gauge = Gauge(phrase, "counter for " + phrase.replace("_", " "), [])
@@ -47,9 +54,7 @@ class PrometheusHandler(Callable):
             return None
         else:
             if callable(self.config.mem_limit):
-                return self.config.mem_limit(
-                    rss=memory_metric_values["memory_usage"]
-                )
+                return self.config.mem_limit(rss=memory_metric_values["memory_usage"])
             elif self.config.mem_limit > 0:  # mem_limit is an Int
                 return self.config.mem_limit
             else:
