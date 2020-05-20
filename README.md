@@ -5,17 +5,17 @@
 
 # NBResuse
 
-[![PyPI](https://img.shields.io/pypi/v/nbresuse)](https://pypi.python.org/pypi/nbresuse)
-[![PyPI](https://img.shields.io/pypi/l/nbresuse)](https://pypi.python.org/pypi/nbresuse)
-[![GitHub](https://img.shields.io/badge/issue_tracking-github-blue?logo=github)](https://github.com/yuvipanda/nbresuse/issues)
-[![TravisCI build status](https://img.shields.io/travis/jupyter/nbviewer/master?logo=travis)](https://travis-ci.org/yuvipanda/nbresuse)
+[![GitHub](https://img.shields.io/badge/issue_tracking-github-blue?logo=github)](https://github.com/edina/nbresuse/issues)
+[![TravisCI build status](https://img.shields.io/travis/jupyter/nbviewer/master?logo=travis)](https://travis-ci.org/edina/nbresuse)
 [![Build Status](https://dev.azure.com/tpaine154/jupyter/_apis/build/status/timkpaine.nbresuse?branchName=master)](https://dev.azure.com/tpaine154/jupyter/_build/latest?definitionId=17&branchName=master)
 [![Coverage](https://img.shields.io/azure-devops/coverage/tpaine154/jupyter/17)](https://dev.azure.com/tpaine154/jupyter/_build?definitionId=17&_a=summary)
 
+Docker NB Resource Usage (DNBResuse) is a fork of NBResuse.
+
+Hereafter, it's called nbresuse
 
 ![Screenshot with three limits showing](standard-metrics-screenshot.png)
 
-Docker NB Resource Usage (DNBResuse) is a fork of NBResuse.
 It is a small extension for Jupyter Notebooks running in a docker notebook, and
 displays an indication of how much resources your current notebook server and
 its children (kernels, terminals, etc) are using. This is displayed in the
@@ -29,13 +29,15 @@ to pull this data is from the `/sys/fs/cgroup/`)
 
 ## Installation
 
-You can currently install this package from PyPI.
+You currently install this package by cloning from GitHub. In your dockerfile, add:
 
 ```bash
-pip install nbresuse
+WORKDIR /srv
+RUN git clone --depth 1 https://github.com/edina/nbresuse
+# COPY . nbresuse
+RUN pip install -e nbresuse
 ```
-
-The above command will install NBResuse along with `psutil` Python package (which is used for getting hardware usage information from the system). If you would like to install NBResuse _without_ `psutil` (in which case NBResuse does essentially nothing), run `pip install nbresuse` instead.
+(swap the `RUN git ...` command for the `COPY . nbresuse` command when developing locally)
 
 **If your notebook version is < 5.3**, you need to enable the extension manually.
 
@@ -85,10 +87,10 @@ Reporting of this can be disabled:
 `nbresuse` also displays Disk usage, reporting current & maximum values.
 
 The `disk_maximum` is defined as the total byte size for the disk partition the directory is on, and that
-directory defaults to `/home`, but can be defined (as outlined for `memory` and `cpu` above) using the
+directory defaults to `/home/joyan`, but can be defined (as outlined for `memory` and `cpu` above) using the
 evironment variable `DISK_DIR` or the config variable `disk_dir` 
 
-The artificial limit can be set as above, using either the `DISK_LIMIT` environment variable or the config
+An artificial limit can be set as above, using either the `DISK_LIMIT` environment variable or the config
 element `disk_limit`. This limit needs to be set as an integer in Bytes.
 
 If `disk_limit` is unset, it reports `disk_maximum`

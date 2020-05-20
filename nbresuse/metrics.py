@@ -78,7 +78,10 @@ class PSUtilMetricsLoader:
             for line in meminfo:
                 if line:
                     key, value = line.split()
-                    data[key] = value
+                    data[key] = int(value)
+        sys_ram = int(psutil.virtual_memory().total)
+        if sys_ram < data['hierarchical_memory_limit']:
+            data['hierarchical_memory_limit'] = sys_ram
         return {'memory_usage': data['rss'], 'memory_total': data['hierarchical_memory_limit']}
 
     def cpu_metrics(self):

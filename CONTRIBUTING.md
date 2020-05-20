@@ -16,44 +16,22 @@ We recommend using [pipenv](https://docs.pipenv.org/) to make development easier
    git clone https://github.com/edina/nbresuse
    ```
 
-2. Create an environment that will hold our dependencies.
+2. Create a reference docker image:
    
    ```bash
-   cd nbresuse
-   pipenv --python 3.6
+   docker build -t test .
    ```
 
-3. Activate the virtual environment that pipenv created for us
-
-   ```bash
-   pipenv shell
-   ```
-
-4. Do a dev install of nbresuse and its dependencies
-
-   ```bash
-   pip install --editable .[resources]
-   ```
-
-   To test the behavior of NBResuse without `psutil` installed, run `pip install --editable .` instead.
-
-5. Install and enable the nbextension for use with Jupyter Classic Notebook.
-
-   ```bash
-   jupyter nbextension install --py nbresuse --symlink --sys-prefix
-   jupyter serverextension enable --py nbresuse  --sys-prefix
-   jupyter nbextension enable --py nbresuse --sys-prefix
-   ```
-
-6. Start a Jupyter Notebook instance, open a new notebook and check out the memory usage
+3. Start a Jupyter Notebook instance, open a new notebook and check out the memory usage
    in the top right!
 
    ```bash
-   jupyter notebook
+   docker run -p 8888:8888 test
    ```
 
-7. If you want to test the memory limit display functionality, you can do so by setting
-   the `MEM_LIMIT` environment variable (in bytes) when starting `jupyter notebook`.
+7. If you want to test and of the functionality that affects the display, you can do so
+   by setting environment variables or setting up a `jupyter_notebook_config.py` file
+   (see the supplied `example_jupyter_notebook_config.py`).
 
    ```bash
    MEM_LIMIT=$(expr 128 \* 1024 \* 1024) jupyter notebook

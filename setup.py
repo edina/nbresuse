@@ -10,11 +10,11 @@ HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.md").read_text()
 
 setuptools.setup(
-    name="nbresuse",
+    name="dnbresuse",
     version="0.4.0",
-    url="https://github.com/yuvipanda/nbresuse",
-    author="Yuvi Panda",
-    description="Simple Jupyter extension to show how much resources (RAM) your notebook is using",
+    url="https://github.com/edina/nbresuse",
+    author="Yuvi Panda, Ian Stuart, Bert Robberechts",
+    description="Simple Jupyter extension to show what resources your docker notebook-container is using",
     long_description=README,
     long_description_content_type="text/markdown",
     license="BSD",
@@ -23,9 +23,8 @@ setuptools.setup(
         "Programming Language :: Python :: 3",
     ],
     packages=setuptools.find_packages(),
-    install_requires=["notebook>=5.6.0", "prometheus_client", "psutil>=5.6.0"],
+    install_requires=["notebook>=6.0.0", "prometheus_client", "psutil>=5.6.0"],
     extras_require={
-        "resources": ["psutil>=5.6.0"],
         "dev": ["autopep8", "pytest", "flake8", "pytest-cov>=2.6.1", "mock"],
     },
     data_files=[
