@@ -24,6 +24,7 @@ class PrometheusHandler(Callable):
             phrase = name + "_usage"
             gauge = Gauge(phrase, "counter for " + phrase.replace("_", " "), [])
             setattr(self, phrase.upper(), gauge)
+        self.metricsloader.nbapp.log.info(f"PromethiusHandler config on init: {self.config}")
 
     async def __call__(self, *args, **kwargs):
 
