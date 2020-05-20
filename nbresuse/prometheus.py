@@ -29,6 +29,7 @@ class PrometheusHandler(Callable):
 
         memory_metric_values = self.metricsloader.memory_metrics()
         if memory_metric_values is not None:
+            self.metricsloader.nbapp.log.info(f"memory metrics (before limits): {memory_metric_values}")
             self.TOTAL_MEMORY_USAGE.set(memory_metric_values["memory_usage"])
             self.MAX_MEMORY_USAGE.set(self.apply_memory_limit(memory_metric_values))
         if self.config.track_cpu_percent:
@@ -39,6 +40,7 @@ class PrometheusHandler(Callable):
         if self.config.track_disk_usage:
             disk_metric_values = self.metricsloader.disk_metrics()
             if disk_metric_values is not None:
+                self.metricsloader.nbapp.log.info(f"disk metrics (before limits): {disk_metric_values}")
                 self.TOTAL_DISK_USAGE.set(disk_metric_values["disk_usage"])
                 self.MAX_DISK_USAGE.set(self.apply_disk_limit(disk_metric_values))
 
@@ -68,7 +70,7 @@ class PrometheusHandler(Callable):
             else:
                 return 100.0 * cpu_metric_values["cpu_count"]
 
-    def apply_disk_limit(self, disk_metric_values) -> Optional[float]:
+    def apply_disk_limit(self, disk_metric_values) -> Optional[str]:
         if disk_metric_values is None:
             return None
         else:

@@ -115,7 +115,7 @@ class ResourceUseDisplay(Configurable):
     ).tag(config=True)
 
     disk_limit = Union(
-        trait_types=[Float(), Callable()],
+        trait_types=[Int(), Callable()],
         default_value=0,
         help="""
         Disk usage limit to display to the user.
