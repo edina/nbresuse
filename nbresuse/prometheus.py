@@ -75,10 +75,16 @@ class PrometheusHandler(Callable):
             return None
         else:
             if callable(self.config.disk_limit):
+                foo = self.config.disk_limit(
+                    disk_usage=disk_metric_values["disk_usage"]
+                )
+                self.metricsloader.nbapp.log.info(f"calling disk_limit returns: {foo}")
                 return self.config.disk_limit(
                     disk_usage=disk_metric_values["disk_usage"]
                 )
             elif self.config.disk_limit > 0:  # disk_limit is an Int
+                self.metricsloader.nbapp.log.info(f"disk_limit defined, returning: {self.config.disk_limit}")
                 return self.config.disk_limit
             else:
+                self.metricsloader.nbapp.log.info(f"disk_limit undefined, returning: {disk_metric_values['disk_total']}")
                 return disk_metric_values["disk_total"]
