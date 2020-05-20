@@ -6,6 +6,7 @@ from traitlets import Dict
 from traitlets import Float
 from traitlets import Int
 from traitlets import List
+from traitlets import Unicode
 from traitlets import TraitType
 from traitlets import Union
 from traitlets.config import Configurable
@@ -65,26 +66,6 @@ class ResourceUseDisplay(Configurable):
         trait=PSUtilMetric(), default_value=[{"name": "disk_usage"}]
     )
 
-    track_mem_percent = Bool(
-        default_value=False,
-        help="""
-        Set to True in order to enable reporting of Memory usage statistics.
-        """,
-    ).tag(config=True)
-
-    mem_warning_threshold = Float(
-        default_value=0.1,
-        help="""
-        Warn user with flashing lights when memory usage is within this fraction
-        memory limit.
-
-        For example, if memory limit is 128MB, `mem_warning_threshold` is 0.1,
-        we will start warning the user when they use (128 - (128 * 0.1)) MB.
-
-        Set to 0 to disable warning.
-        """,
-    ).tag(config=True)
-
     mem_limit = Union(
         trait_types=[Int(), Callable()],
         help="""
@@ -103,22 +84,9 @@ class ResourceUseDisplay(Configurable):
         return int(os.environ.get("MEM_LIMIT", 0))
 
     track_cpu_percent = Bool(
-        default_value=False,
+        default_value=True,
         help="""
         Set to True in order to enable reporting of CPU usage statistics.
-        """,
-    ).tag(config=True)
-
-    cpu_warning_threshold = Float(
-        default_value=0.1,
-        help="""
-        Warn user with flashing lights when CPU usage is within this fraction
-        CPU usage limit.
-
-        For example, if CPU limit is 150%, `cpu_warning_threshold` is 0.1,
-        we will start warning the user when they use (150 - (150 * 0.1)) %.
-
-        Set to 0 to disable warning.
         """,
     ).tag(config=True)
 
@@ -139,23 +107,10 @@ class ResourceUseDisplay(Configurable):
     def _cpu_limit_default(self):
         return float(os.environ.get("CPU_LIMIT", 0))
 
-    track_disk_percent = Bool(
-        default_value=False,
+    track_disk_usage = Bool(
+        default_value=True,
         help="""
         Set to True in order to enable reporting of Disk usage statistics.
-        """,
-    ).tag(config=True)
-
-    disk_warning_threshold = Float(
-        default_value=0.1,
-        help="""
-        Warn user with flashing lights when Disk usage is within this fraction
-        Disk usage limit.
-
-        For example, if Disk limit is 5GB, `disk_warning_threshold` is 0.1,
-        we will start warning the user when they use (5 - (5 * 0.1)) GB.
-
-        Set to 0 to disable warning.
         """,
     ).tag(config=True)
 
@@ -174,4 +129,21 @@ class ResourceUseDisplay(Configurable):
 
     @default("disk_limit")
     def _disk_limit_default(self):
-        return float(os.environ.get("DISK_LIMIT", 0))
+        return int(os.environ.get("DISK_LIMIT", 0))
+
+    disk_dir = Union(
+        trait_types=[Unicode(), Callable()],
+        default_value='/home/jovyan',
+        help="""
+        The directory that is on the partition to get the size of.
+
+        Note that this does not actually limit the user's Disk space!
+
+        Defaults to reading from the `DISK_DIR` environment variable. If
+        not defined, it defaults to /home/jovyan.
+        """,
+    ).tag(config=True)
+
+    @default("disk_dir")
+    def _disk_limit_default(self):
+        return str(os.environ.get("DISK_DIR", '/home/jovyan'))

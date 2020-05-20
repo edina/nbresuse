@@ -1,3 +1,5 @@
+import os
+
 try:
     import psutil
 except ImportError:
@@ -71,9 +73,13 @@ class PSUtilMetricsLoader:
         return metric_values
 
     def memory_metrics(self):
-        return self.metrics(
-            self.config.process_memory_metrics, self.config.system_memory_metrics
-        )
+        data = {}
+        with open('/sys/fs/cgroup/memory/memory.stat') as meminfo:
+            for line in meminfo:
+                if line:
+                    key, value = line.split()
+                    data[key] = value
+        return {'memory_usage': data['rss'], 'memory_total': data['hierarchical_memory_limit']}
 
     def cpu_metrics(self):
         return self.metrics(
@@ -81,7 +87,7 @@ class PSUtilMetricsLoader:
         )
 
     def disk_metrics(self):
-        root_directory = Path('.')
+        root_directory = Path(self.config.disk_dir)
         disk_usage = sum(f.stat().st_size for f in root_directory.glob('**/*') if f.is_file() )
-        disk_psutils = psutil.disk_usage('/home').total
+        disk_psutils = psutil.disk_usage(self.config.disk_dir).total
         return {'disk_usage': disk_usage, 'disk_total': disk_psutils}

@@ -26,16 +26,17 @@ class PrometheusHandler(Callable):
             setattr(self, phrase.upper(), gauge)
 
     async def __call__(self, *args, **kwargs):
+
         memory_metric_values = self.metricsloader.memory_metrics()
         if memory_metric_values is not None:
-            self.TOTAL_MEMORY_USAGE.set(memory_metric_values["memory_info_rss"])
+            self.TOTAL_MEMORY_USAGE.set(memory_metric_values["memory_usage"])
             self.MAX_MEMORY_USAGE.set(self.apply_memory_limit(memory_metric_values))
         if self.config.track_cpu_percent:
             cpu_metric_values = self.metricsloader.cpu_metrics()
             if cpu_metric_values is not None:
                 self.TOTAL_CPU_USAGE.set(cpu_metric_values["cpu_percent"])
                 self.MAX_CPU_USAGE.set(self.apply_cpu_limit(cpu_metric_values))
-        if self.config.track_disk_percent:
+        if self.config.track_disk_usage:
             disk_metric_values = self.metricsloader.disk_metrics()
             if disk_metric_values is not None:
                 self.TOTAL_DISK_USAGE.set(disk_metric_values["disk_usage"])
@@ -47,12 +48,12 @@ class PrometheusHandler(Callable):
         else:
             if callable(self.config.mem_limit):
                 return self.config.mem_limit(
-                    rss=memory_metric_values["memory_info_rss"]
+                    rss=memory_metric_values["memory_usage"]
                 )
             elif self.config.mem_limit > 0:  # mem_limit is an Int
                 return self.config.mem_limit
             else:
-                return memory_metric_values["virtual_memory_total"]
+                return memory_metric_values["memory_total"]
 
     def apply_cpu_limit(self, cpu_metric_values) -> Optional[float]:
         if cpu_metric_values is None:
