@@ -133,7 +133,7 @@ class ResourceUseDisplay(Configurable):
 
     disk_dir = Union(
         trait_types=[Unicode(), Callable()],
-        default_value='/home/jovyan',
+        default_value=os.getcwd(),
         help="""
         The directory that is on the partition to get the size of.
 
@@ -145,5 +145,5 @@ class ResourceUseDisplay(Configurable):
     ).tag(config=True)
 
     @default("disk_dir")
-    def _disk_limit_default(self):
-        return str(os.environ.get("DISK_DIR", '/home/jovyan'))
+    def _disk_dir_default(self):
+        return str(os.environ.get("DISK_DIR", os.getcwd()))
