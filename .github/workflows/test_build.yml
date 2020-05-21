@@ -13,7 +13,7 @@ jobs:
 
     - name: Build Image
       run: |
-        docker build . --file Dockerfile --tag dnbresuse-test:$(date +%s)
+        docker build . --file Dockerfile --tag dnbresuse-test:test
     - name: Remove Image
       run: |
-        docker image rm dnbresuse-test:$(date +%s)
+        docker image rm dnbresuse-test:test
