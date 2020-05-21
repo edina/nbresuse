@@ -25,7 +25,20 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     install_requires=["notebook>=6.0.0", "prometheus_client", "psutil>=5.6.0"],
     extras_require={
-        "dev": ["autopep8", "pytest", "flake8", "pytest-cov>=2.6.1", "mock", "black"]
+        "dev": [
+            "autopep8",
+            "pytest",
+            "flake8",
+            "pytest-cov>=2.6.1",
+            "mock",
+            "black",
+            "tornado",
+            "traitlets",
+            "notebook",
+            "prometheus_client",
+            "psutil",
+            "pre-commit",
+        ]
     },
     data_files=[
         ("share/jupyter/nbextensions/nbresuse", glob("nbresuse/static/*")),
