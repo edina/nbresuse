@@ -37,7 +37,7 @@ We recommend using [pipenv](https://docs.pipenv.org/) to make development easier
    MEM_LIMIT=$(expr 128 \* 1024 \* 1024) jupyter notebook
    ```
 
-5. NBResuse has adopted automatic code formatting so you shouldn't
+5. DNBResuse has adopted automatic code formatting so you shouldn't
 need to worry too much about your code style.
 As long as your code is valid,
 the pre-commit hook should take care of how it should look. Here is how to set up pre-commit hooks for automatic code formatting, etc.
@@ -61,6 +61,10 @@ If you have already committed files before setting up the pre-commit
 hook with `pre-commit install`, you can fix everything up using
 `pre-commit run --all-files`.  You need to make the fixing commit
 yourself after that.
+
+6. The DNBResuse repo checks every commit for linting & the the code will actually install [in a docker image].
+
+## Here
 
 9. It's a good idea to write tests to exercise any new features,
 or that trigger any bugs that you have fixed to catch regressions. `pytest` is used to run the test suite. You can run the tests with:

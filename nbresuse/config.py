@@ -6,8 +6,8 @@ from traitlets import Dict
 from traitlets import Float
 from traitlets import Int
 from traitlets import List
-from traitlets import Unicode
 from traitlets import TraitType
+from traitlets import Unicode
 from traitlets import Union
 from traitlets.config import Configurable
 

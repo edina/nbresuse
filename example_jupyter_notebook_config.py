@@ -1,5 +1,4 @@
-
-c = get_config()
+c = get_config()  # noqa: F821
 
 c.FileContentsManager.delete_to_trash = False
 
@@ -10,4 +9,4 @@ c.NotebookApp.ResourceUseDisplay.track_cpu_percent = False
 c.NotebookApp.ResourceUseDisplay.mem_limit = 246579200
 
 # set a disk limit: 500MB
-c.NotebookApp.ResourceUseDisplay.disk_limit=536870912
+c.NotebookApp.ResourceUseDisplay.disk_limit = 536870912
