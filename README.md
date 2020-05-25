@@ -5,30 +5,39 @@
 
 # NBResuse
 
-[![PyPI](https://img.shields.io/pypi/v/nbresuse)](https://pypi.python.org/pypi/nbresuse)
-[![PyPI](https://img.shields.io/pypi/l/nbresuse)](https://pypi.python.org/pypi/nbresuse)
-[![GitHub](https://img.shields.io/badge/issue_tracking-github-blue?logo=github)](https://github.com/yuvipanda/nbresuse/issues)
-[![TravisCI build status](https://img.shields.io/travis/jupyter/nbviewer/master?logo=travis)](https://travis-ci.org/yuvipanda/nbresuse)
+[![GitHub](https://img.shields.io/badge/issue_tracking-github-blue?logo=github)](https://github.com/edina/nbresuse/issues)
+[![TravisCI build status](https://img.shields.io/travis/jupyter/nbviewer/master?logo=travis)](https://travis-ci.org/edina/nbresuse)
 [![Build Status](https://dev.azure.com/tpaine154/jupyter/_apis/build/status/timkpaine.nbresuse?branchName=master)](https://dev.azure.com/tpaine154/jupyter/_build/latest?definitionId=17&branchName=master)
 [![Coverage](https://img.shields.io/azure-devops/coverage/tpaine154/jupyter/17)](https://dev.azure.com/tpaine154/jupyter/_build?definitionId=17&_a=summary)
 
+Docker NB Resource Usage (DNBResuse) is a fork of NBResuse.
 
-![Screenshot with memory limit](screenshot.png)
+Hereafter, it's called nbresuse
 
-NB Resource Usage (NBResuse) is a small extension for Jupyter Notebooks that
+![Screenshot with three limits showing](standard-metrics-screenshot.png)
+
+It is a small extension for Jupyter Notebooks running in a docker notebook, and
 displays an indication of how much resources your current notebook server and
 its children (kernels, terminals, etc) are using. This is displayed in the
 main toolbar in the notebook itself, refreshing every 5s.
 
+Reminder: This version is specific from notebooks running in docker containers.
+
+Whilst running directly on a host, details can be pulled from pustil (which
+pulls data from the `/proc` tree, however in a docker image the correct place
+to pull this data is from the `/sys/fs/cgroup/`)
+
 ## Installation
 
-You can currently install this package from PyPI.
+You currently install this package by cloning from GitHub. In your dockerfile, add:
 
 ```bash
-pip install nbresuse[resources]
+WORKDIR /srv
+RUN git clone --depth 1 https://github.com/edina/nbresuse
+# COPY . nbresuse
+RUN pip install -e nbresuse
 ```
-
-The above command will install NBResuse along with `psutil` Python package (which is used for getting hardware usage information from the system). If you would like to install NBResuse _without_ `psutil` (in which case NBResuse does essentially nothing), run `pip install nbresuse` instead.
+(swap the `RUN git ...` command for the `COPY . nbresuse` command when developing locally)
 
 **If your notebook version is < 5.3**, you need to enable the extension manually.
 
@@ -42,59 +51,71 @@ jupyter nbextension enable --py nbresuse --sys-prefix
 
 ### Memory Limit
 
-`nbresuse` can display a memory limit (but not enforce it). You can set this
+`nbresuse` displays a memory usage against a maximum value. You can set this
 in several ways:
 
 1. `MEM_LIMIT` environment variable. This is set by [JupyterHub](https://github.com/jupyterhub/jupyterhub/)
    if using a spawner that supports it.
-2. In the commandline when starting `jupyter notebook`, as `--ResourceUseDisplay.mem_limit`.
-3. In your Jupyter notebook [traitlets](https://traitlets.readthedocs.io/en/stable/) config file
+2. In the commandline when starting `jupyter notebook`, as `--ResourceUseDisplay.mem_limit=246579200`.
+3. In your Jupyter notebook [traitlets](https://traitlets.readthedocs.io/en/stable/) config file:
+ `c.NotebookApp.ResourceUseDisplay.mem_limit = 246579200`
 
 The limit needs to be set as an integer in Bytes.
 
-### Memory usage warning threshold
-
-![Screenshot with memory warning](warn-screenshot.png)
-
-The background of the resource display can be changed to red when the user is near a memory limit.
-The threshold for this warning can be configured as a fraction of the memory limit.
-
-If you want to flash the warning to the user when they are within 10% of the memory limit, you
-can set the parameter `--ResourceUseDisplay.mem_warning_threshold=0.1`.
-
+If unset, it reads the maximum memory available
 
 ### CPU Usage
 
-`nbresuse` can also track CPU usage and report a `cpu_percent` value as part of the `/metrics` response.
+`nbresuse` also displays CPU usage, reporting a `cpu_percent`.
 
 You can set the `cpu_limit` in several ways:
 
 1. `CPU_LIMIT` environment variable. This is set by [JupyterHub](https://github.com/jupyterhub/jupyterhub/)
    if using a spawner that supports it.
-2. In the command line when starting `jupyter notebook`, as `--ResourceUseDisplay.cpu_limit`.
-3. In your Jupyter notebook [traitlets](https://traitlets.readthedocs.io/en/stable/) config file
+2. In the command line when starting `jupyter notebook`, as `--ResourceUseDisplay.cpu_limit=1.5`.
+3. In your Jupyter notebook config file: `c.NotebookApp.ResourceUseDisplay.cpu_limit = 1.5`
 
 The limit corresponds to the number of cpus the user has access to, but does not enforce it.
 
-Additionally, you can set the `track_cpu_percent` trait to enable CPU usage tracking (disabled by default):
+Reporting of this can be disabled:
 
-```python
-c = get_config()
-c.NotebookApp.ResourceUseDisplay.track_cpu_percent = True
-```
+1. In the command line when starting `jupyter notebook`, as `--ResourceUseDisplay.track_cpu_percent=False`.
+2. In your Jupyter notebook config file: `c.NotebookApp.ResourceUseDisplay.track_cpu_percent=False`
 
-As a command line argument:
+### Disk Usage
 
-```bash
-jupyter notebook --ResourceUseDisplay.track_cpu_percent=True
-```
+`nbresuse` also displays Disk usage, reporting current & maximum values.
+
+The `disk_maximum` is defined as the total byte size for the disk partition the directory is on, and that
+directory defaults to `/home/joyan`, but can be defined (as outlined for `memory` and `cpu` above) using the
+evironment variable `DISK_DIR` or the config variable `disk_dir` 
+
+An artificial limit can be set as above, using either the `DISK_LIMIT` environment variable or the config
+element `disk_limit`. This limit needs to be set as an integer in Bytes.
+
+If `disk_limit` is unset, it reports `disk_maximum`
+
+Reporting of this can be disabled:
+
+1. In the command line when starting `jupyter notebook`, as `--ResourceUseDisplay.track_disk_usage=False`.
+2. In your Jupyter notebook config file: `c.NotebookApp.ResourceUseDisplay.track_disk_usage=False`
 
 ## Resources Displayed
 
-Currently the server extension only reports memory usage (just RSS) and CPU usage. Other metrics will be
-added in the future as needed.
+Out the box, all three metrics are displayed.
 
-The notebook extension currently doesn't show CPU usage, only memory usage.
+Items can me removed, see above.
+
+Resources are displayed as a named box, with a bar to indicate a level of use.
+
+The bar is green for normal use, turns orange at 75%, red at 90%, and goes maroon when over 100%
+
+![Screenshot with warning disk shown](metrics-screenshot.png)
+
+The bar is green for normal use, turns orange at 75%, red at 90%, and goes maroon when over 100%
+
+If you wish to see the actual values, each box has a tool-tip that displays the numeric values at the
+time the tool-tip is raised.
 
 ## Contributing
 

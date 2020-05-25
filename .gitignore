@@ -24,3 +24,8 @@ var/
 .installed.cfg
 *.egg
 *.ipynb
+venv
+.venv
+.vscode
+.envrc
+.direnv

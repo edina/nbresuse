@@ -10,85 +10,92 @@ for a friendly and welcoming collaborative environment.
 
 We recommend using [pipenv](https://docs.pipenv.org/) to make development easier.
 
+### Getting the repo
+
 1. Clone the git repository:
 
    ```bash
-   git clone https://github.com/yuvipanda/nbresuse
+   git clone https://github.com/edina/nbresuse
    ```
 
-2. Create an environment that will hold our dependencies.
+2. Create a reference docker image:
    
    ```bash
-   cd nbresuse
-   pipenv --python 3.6
+   docker build -t test .
    ```
 
-3. Activate the virtual environment that pipenv created for us
-
-   ```bash
-   pipenv shell
-   ```
-
-4. Do a dev install of nbresuse and its dependencies
-
-   ```bash
-   pip install --editable .[resources]
-   ```
-
-   To test the behavior of NBResuse without `psutil` installed, run `pip install --editable .` instead.
-
-5. Install and enable the nbextension for use with Jupyter Classic Notebook.
-
-   ```bash
-   jupyter nbextension install --py nbresuse --symlink --sys-prefix
-   jupyter serverextension enable --py nbresuse  --sys-prefix
-   jupyter nbextension enable --py nbresuse --sys-prefix
-   ```
-
-6. Start a Jupyter Notebook instance, open a new notebook and check out the memory usage
+3. Start a Jupyter Notebook instance, open a new notebook and check out the usage guages
    in the top right!
 
    ```bash
-   jupyter notebook
+   docker run -p 8888:8888 test
    ```
 
-7. If you want to test the memory limit display functionality, you can do so by setting
-   the `MEM_LIMIT` environment variable (in bytes) when starting `jupyter notebook`.
+### Testing variations
+
+4. If you want to test and of the functionality that affects the display, you can do so
+   by setting environment variables or setting up a `jupyter_notebook_config.py` file
+   (see the supplied `example_jupyter_notebook_config.py`).
 
    ```bash
    MEM_LIMIT=$(expr 128 \* 1024 \* 1024) jupyter notebook
    ```
 
-8. NBResuse has adopted automatic code formatting so you shouldn't
+### Developing and improving the code
+
+Before you add/change code, you need to consider testing: It's a good idea to write tests to exercise any new features,
+or that trigger any bugs that you have fixed to catch regressions.
+
+5. In your Virtual Environment, you'll need to add a bunch of pytho libraries:
+
+   ```bash
+   pip install -r requirements-dev.txt
+   ```
+
+6. `pytest` is used to run the test suite. You can run the tests with:
+
+   ```bash
+   python -m pytest -vvv nbresuse
+   ```
+
+   in the repo directory.
+
+
+7. DNBResuse has adopted automatic code formatting so you shouldn't
 need to worry too much about your code style.
-As long as your code is valid,
-the pre-commit hook should take care of how it should look. Here is how to set up pre-commit hooks for automatic code formatting, etc.
 
-    ```bash
-    pre-commit install
-    ```
+   As long as your code is valid, the pre-commit hook should take care of 
+   how it should look. Here is how to set up pre-commit hooks for automatic
+   code formatting, etc.
 
-    You can also invoke the pre-commit hook manually at any time with
+   ```bash
+   pre-commit install
+   ```
 
-    ```bash
-    pre-commit run
-    ```
-	
-which should run any autoformatting on your code
-and tell you about any errors it couldn't fix automatically.
-You may also install [black integration](https://github.com/ambv/black#editor-integration)
-into your text editor to format code automatically.
+   You should run the pre-commit hook manually before commiting to save your blushes.
 
-If you have already committed files before setting up the pre-commit
+   You need to `git add <foos>` before running the commit.
+
+   ```bash
+   pre-commit run
+   ```
+
+   which will check the code for formatting & conformity.
+
+   The `pre-commit` will modify code as appropriate, so you'll need to re-`add` files
+   if you want to re-run
+
+   If you have already committed files before setting up the pre-commit
 hook with `pre-commit install`, you can fix everything up using
 `pre-commit run --all-files`.  You need to make the fixing commit
 yourself after that.
 
-9. It's a good idea to write tests to exercise any new features,
-or that trigger any bugs that you have fixed to catch regressions. `pytest` is used to run the test suite. You can run the tests with:
+   If you get failures, try
 
-```bash
-python -m pytest -vvv nbresuse
-```
+   ```bash
+   pre-commit run --show-diff-on-failure
+   ```
 
-in the repo directory.
+   to see what the errors are.
+
+8. The DNBResuse repo checks every commit for linting & the the code will actually install [in a docker image].

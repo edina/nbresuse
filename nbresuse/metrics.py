@@ -1,7 +1,10 @@
+import os
+
 try:
     import psutil
 except ImportError:
     psutil = None
+from pathlib import Path
 
 from notebook.notebookapp import NotebookApp
 
@@ -67,15 +70,32 @@ class PSUtilMetricsLoader:
 
         if any(value is None for value in metric_values.values()):
             return None
-
         return metric_values
 
     def memory_metrics(self):
-        return self.metrics(
-            self.config.process_memory_metrics, self.config.system_memory_metrics
-        )
+        data = {}
+        with open("/sys/fs/cgroup/memory/memory.stat") as meminfo:
+            for line in meminfo:
+                if line:
+                    key, value = line.split()
+                    data[key] = int(value)
+        sys_ram = int(psutil.virtual_memory().total)
+        if sys_ram < data["hierarchical_memory_limit"]:
+            data["hierarchical_memory_limit"] = sys_ram
+        return {
+            "memory_usage": data["rss"],
+            "memory_total": data["hierarchical_memory_limit"],
+        }
 
     def cpu_metrics(self):
         return self.metrics(
             self.config.process_cpu_metrics, self.config.system_cpu_metrics
         )
+
+    def disk_metrics(self):
+        root_directory = Path(self.config.disk_dir)
+        disk_usage = sum(
+            f.stat().st_size for f in root_directory.glob("**/*") if f.is_file()
+        )
+        disk_psutils = psutil.disk_usage(self.config.disk_dir).total
+        return {"disk_usage": disk_usage, "disk_total": disk_psutils}
