@@ -43,11 +43,11 @@ class PrometheusHandler(Callable):
             if cpu_metric_values is not None:
                 self.TOTAL_CPU_USAGE.set(cpu_metric_values["cpu_percent"])
                 self.MAX_CPU_USAGE.set(self.apply_cpu_limit(cpu_metric_values))
-        if self.config.track_disk_usage:
-            disk_metric_values = self.metricsloader.disk_metrics()
-            if disk_metric_values is not None:
-                self.TOTAL_DISK_USAGE.set(disk_metric_values["disk_usage"])
-                self.MAX_DISK_USAGE.set(self.apply_disk_limit(disk_metric_values))
+        # if self.config.track_disk_usage:
+        #     disk_metric_values = self.metricsloader.disk_metrics()
+        #     if disk_metric_values is not None:
+        #         self.TOTAL_DISK_USAGE.set(disk_metric_values["disk_usage"])
+        #         self.MAX_DISK_USAGE.set(self.apply_disk_limit(disk_metric_values))
 
     def apply_memory_limit(self, memory_metric_values) -> Optional[int]:
         if memory_metric_values is None:

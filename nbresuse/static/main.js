@@ -146,7 +146,7 @@ define([
             success: function(data) {
                 displayMetric('memory', data)
                 displayMetric('cpu', data)
-                displayMetric('disk', data)
+                // displayMetric('disk', data)
             }
         });
     };

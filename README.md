@@ -27,6 +27,15 @@ Whilst running directly on a host, details can be pulled from pustil (which
 pulls data from the `/proc` tree, however in a docker image the correct place
 to pull this data is from the `/sys/fs/cgroup/`)
 
+### August 2020 Flaw Found
+
+In August 2020, we found a flaw in our logic: The code that determined the disk
+metrics stalled the loading to the classic notebook-server intreface for those
+with >~8,000 items under $HOME (in our K8 environment.)
+
+This code-base has been edited to it does not interact with that metric (it
+doesn't generate it, or look to display it in the UI)
+
 ## Installation
 
 You currently install this package by cloning from GitHub. In your dockerfile, add:
