@@ -92,10 +92,10 @@ class PSUtilMetricsLoader:
             self.config.process_cpu_metrics, self.config.system_cpu_metrics
         )
 
-    def disk_metrics(self):
-        root_directory = Path(self.config.disk_dir)
-        disk_usage = sum(
-            f.stat().st_size for f in root_directory.glob("**/*") if f.is_file()
-        )
-        disk_psutils = psutil.disk_usage(self.config.disk_dir).total
-        return {"disk_usage": disk_usage, "disk_total": disk_psutils}
+    # def disk_metrics(self):
+    #     root_directory = Path(self.config.disk_dir)
+    #     disk_usage = sum(
+    #         f.stat().st_size for f in root_directory.glob("**/*") if f.is_file()
+    #     )
+    #     disk_psutils = psutil.disk_usage(self.config.disk_dir).total
+    #     return {"disk_usage": disk_usage, "disk_total": disk_psutils}
