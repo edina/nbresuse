@@ -27,15 +27,6 @@ Whilst running directly on a host, details can be pulled from pustil (which
 pulls data from the `/proc` tree, however in a docker image the correct place
 to pull this data is from the `/sys/fs/cgroup/`)
 
-### August 2020 Flaw Found
-
-In August 2020, we found a flaw in our logic: The code that determined the disk
-metrics stalled the loading to the classic notebook-server intreface for those
-with >~8,000 items under $HOME (in our K8 environment.)
-
-This code-base has been edited to it does not interact with that metric (it
-doesn't generate it, or look to display it in the UI)
-
 ## Installation
 
 You currently install this package by cloning from GitHub. In your dockerfile, add:
@@ -95,6 +86,8 @@ Reporting of this can be disabled:
 
 `nbresuse` also displays Disk usage, reporting current & maximum values.
 
+It uses `psutil` to determine values.
+
 The `disk_maximum` is defined as the total byte size for the disk partition the directory is on, and that
 directory defaults to `/home/joyan`, but can be defined (as outlined for `memory` and `cpu` above) using the
 evironment variable `DISK_DIR` or the config variable `disk_dir` 
@@ -108,6 +101,7 @@ Reporting of this can be disabled:
 
 1. In the command line when starting `jupyter notebook`, as `--ResourceUseDisplay.track_disk_usage=False`.
 2. In your Jupyter notebook config file: `c.NotebookApp.ResourceUseDisplay.track_disk_usage=False`
+
 
 ## Resources Displayed
 
